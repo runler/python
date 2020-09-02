@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+<!--   添加 viewport 元数据标签 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>用户登录</title>
+<!--   使用 <link> 引入外部 css 样式表文件 -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+</head>
+<body>
+<!--   布局容器 .container -->
+<div class="container">
+    <!--   使用“列”的类前缀，后跟布局所占据列宽（1~12） -->
+    <div class="row">
+        <!--   将登录表单在水平方向居中位置显示 布局的列结构上使用 .well -->
+        <div class="col-md-6 col-sm-8 col-md-offset-3 col-sm-offset-2 well">
+             <!--  使用预定义类 .text-center -->
+            <h1 class="text-center">用户登录</h1>
+            <form>
+                <!--   使用预定义类 .input-group 来表示输入框组 -->
+                <div class="input-group">
+                    <!--   使用 Bootstrap 提供的 Glyphicons 字体图标 -->
+                    <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+                    <!--   要输入框宽度自适应布局容器大小 使用 .form-control 类-->
+                    <input type="text" class="form-control" placeholder="Username">
+                </div>
+                <div class="input-group">
+                    <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
+                    <input type="password" class="form-control" placeholder="Password">
+                </div>
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox"> 记住用户名
+                    </label>
+                </div>
+                <!--   使用预定义类 ..btn将元素变成按钮 使用 .btn-block 可以将按钮变成块级元素，拉伸到父元素的 100% 宽度，同时使用 .btn-success 样式设置按钮成功样式-->
+                <input type="submit" class="btn btn-success btn-block" value="登录">
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

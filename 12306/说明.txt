@@ -1,0 +1,4 @@
+1、确保安装 python3 和 chrome 浏览器
+2、pip install -r requirements.txt
+3、修改配置文件，并指定 chromedriver.exe的位置
+4、python hack12306.py
