@@ -9,7 +9,7 @@ root = Tk()
 root.title("用户登录")
 root.geometry("520x270")
 # 表格图片
-photo = PhotoImage(file="./img/login.png")
+photo = PhotoImage(file="img/login.png")
 img_label = Label(root, image=photo).grid(row=0, column=0, rowspan=2)
 # 第一行 第二列
 Label_username = Label(root, text="用户名：", font=("华文黑体", 16)).grid(row=0, column=1)

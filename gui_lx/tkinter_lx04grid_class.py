@@ -21,7 +21,7 @@ class LoginGUI(object):
         self.frame.title("用户登录")
         self.frame.geometry("520x270")
         # 表格图片
-        self.photo = PhotoImage(file="./img/login.png")
+        self.photo = PhotoImage(file="img/login.png")
         self.img_label = Label(self.frame, image=self.photo).grid(row=0, column=0, rowspan=2)
         # 第一行 第二列
         self.Label_username = Label(self.frame, text="用户名：", font=("华文黑体", 16)).grid(row=0, column=1)
