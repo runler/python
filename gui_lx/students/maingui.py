@@ -3,6 +3,8 @@ from tkinter.messagebox import showinfo
 from tkinter.ttk import *
 import os
 
+import detailgui
+
 
 class MainWindow(Tk):
     def __init__(self, current_user, current_time):
@@ -17,6 +19,7 @@ class MainWindow(Tk):
         self.query_result_list = []
         self.file_path = "Student.txt"
         self.load_file_student_info()
+        self.action_flag = 0
         # 加载gui
         self.setup_UI()
         self.load_treeview(self.all_student_list)
@@ -37,9 +40,9 @@ class MainWindow(Tk):
         self.Pane_right = PanedWindow(width=685, height=540, style="right.TPanedwindow")
         self.Pane_right.place(x=210, y=94)
         # 添加左边按钮
-        self.Button_add = Button(self.Pane_left, text="添加学生", style="TButton")
+        self.Button_add = Button(self.Pane_left, text="添加学生", style="TButton", command=self.add_student)
         self.Button_add.place(x=40, y=20)
-        self.Button_update = Button(self.Pane_left, text="修改学生", style="TButton")
+        self.Button_update = Button(self.Pane_left, text="修改学生", style="TButton", command=self.update_student)
         self.Button_update.place(x=40, y=45)
         self.Button_delete = Button(self.Pane_left, text="删除学生", style="TButton")
         self.Button_delete.place(x=40, y=70)
@@ -101,6 +104,8 @@ class MainWindow(Tk):
         self.Label_login_user = Label(self, text="当前用户:" + str(self.login_user).title()
                                                  + "\n登录时间:" + self.login_time)
         self.Label_login_user.place(x=650, y=40)
+        # 添加触发双击表格某一行的事件，写法是：使用bind()方法，第一个参数一定要以Double开头，体现是一个双击事件，第二个函数为对应的触发函数。
+        self.Tree.bind("<Double-1>", self.view_student)
 
     def load_all_student(self):
         # 把所有查询条件文本框清空
@@ -137,7 +142,7 @@ class MainWindow(Tk):
             showinfo("系统消息", "提供的文件名不存在！")
         else:
             try:
-                with open(file=self.file_path, mode="r") as fd:
+                with open(file=self.file_path, mode="r", encoding="utf-8") as fd:
                     # 一次读一行
                     current_line = fd.readline()
                     while current_line:
@@ -159,6 +164,21 @@ class MainWindow(Tk):
                                                     current_list[index][2], current_list[index][3],
                                                     current_list[index][4],
                                                     current_list[index][5], current_list[index][6]))
+
+    def load_detail_window(self):
+        detail_window = detailgui.DetailWindow(self.action_flag)
+
+    def add_student(self):
+        self.action_flag = 2
+        self.load_detail_window()
+
+    def update_student(self):
+        self.action_flag = 3
+        self.load_detail_window()
+
+    def view_student(self, event):
+        self.action_flag = 1
+        self.load_detail_window()
 
 
 if __name__ == '__main__':
