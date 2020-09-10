@@ -22,6 +22,8 @@ class LoginWindow(Tk):
         # 定义变量（定义全局变量，后面的函数都能访问到）
         self.file_path = "./User.txt"  # 文件路劲
         self.user_list = []  # 存储用户信息
+
+        self.current_user_list = []  # 用于存储当前用户的用户名、密码、状态信息
         self.var_password_error_times = 0  # 记录登录密码错误次数
         # 自动执行文件中账号的加载
         self.load_file_info()
@@ -86,6 +88,7 @@ class LoginWindow(Tk):
                     self.var_password_error_times = 0
                     # showinfo("系统消息", "登录成功！")
                     self.user = user
+                    self.current_user_list = self.user_list[index]
                     self.load_main()
                     break
                 # 如果校验到最后都没有相同的用户名,则用户名不存在
@@ -129,7 +132,7 @@ class LoginWindow(Tk):
         self.destroy()
         # 加载新窗体
         if __name__ == '__main__':
-            main_window = maingui.MainWindow(self.user, self.get_now_time())
+            main_window = maingui.MainWindow(self.current_user_list, self.get_now_time())
 
 
 if __name__ == '__main__':

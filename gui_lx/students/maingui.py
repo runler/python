@@ -1,28 +1,52 @@
 from tkinter import *
-from tkinter.messagebox import showinfo
+from tkinter.messagebox import showinfo, askyesno
 from tkinter.ttk import *
 import os
 
 import detailgui
+import changepasswordgui
 
 
 class MainWindow(Tk):
-    def __init__(self, current_user, current_time):
+    def __init__(self, current_user_list, current_time):
         super().__init__()
         self.title("主窗体")
         self.geometry("900x640+180+80")
         self.resizable(0, 0)
         self["bg"] = "royalblue"
-        self.login_user = current_user
+        self.current_login_list = current_user_list
+        self.login_user = current_user_list[0]
         self.login_time = current_time
         self.all_student_list = []
         self.query_result_list = []
+        self.current_student_list = []
+        self.action_flag = 0
         self.file_path = "Student.txt"
         self.load_file_student_info()
-        self.action_flag = 0
         # 加载gui
         self.setup_UI()
         self.load_treeview(self.all_student_list)
+        # 捕获窗体的行为并转化为方法，把点击窗体叉号的关闭行为转化为自动执行close_window的方法
+        self.protocol("WM_DELETE_WINDOW", self.close_window)
+
+    def close_window(self):
+        # 给用户提示：是否要保存数据
+        choose = askyesno("关闭前提醒","关闭窗体前是否要将修改写入文件")
+        if choose:
+            try:
+                with open(self.file_path, mode="w", encoding="UTF-8") as fd:
+                    fd.write("")
+                with open(self.file_path, mode="w", encoding="UTF-8") as fd:
+                    for item in self.all_student_list:
+                        temp = ",".join(item)
+                        temp = temp.replace("\n", "") + "\n"
+                        fd.write(temp)
+            except:
+                showinfo("系统消息", "写入文件出现异常")
+            # 提醒
+            showinfo("系统消息","所有的修改已经写入到文件")
+        # 关闭
+        self.destroy()
 
     def setup_UI(self):
         # 设定Style
@@ -44,9 +68,9 @@ class MainWindow(Tk):
         self.Button_add.place(x=40, y=20)
         self.Button_update = Button(self.Pane_left, text="修改学生", style="TButton", command=self.update_student)
         self.Button_update.place(x=40, y=45)
-        self.Button_delete = Button(self.Pane_left, text="删除学生", style="TButton")
+        self.Button_delete = Button(self.Pane_left, text="删除学生", style="TButton", command=self.delete_student)
         self.Button_delete.place(x=40, y=70)
-        self.Button_modify = Button(self.Pane_left, text="更改密码", style="TButton")
+        self.Button_modify = Button(self.Pane_left, text="更改密码", style="TButton", command=self.changepassword)
         self.Button_modify.place(x=40, y=120)
         # 右边：查询、TreeView
         self.Pane_right = PanedWindow(width=725, height=540, style="right.TPanedwindow")
@@ -140,7 +164,7 @@ class MainWindow(Tk):
         # 读取文件中的学生信息
         if not os.path.exists(self.file_path):
             showinfo("系统消息", "提供的文件名不存在！")
-        else:
+        elif self.action_flag == 0:
             try:
                 with open(file=self.file_path, mode="r", encoding="utf-8") as fd:
                     # 一次读一行
@@ -154,30 +178,81 @@ class MainWindow(Tk):
                 showinfo("系统消息", "文件读取出现异常！")
 
     def load_treeview(self, current_list: list):
-
         # 判断是否有数据：
         if len(current_list) == 0:
             showinfo("系统消息", "没有数据加载")
         else:
+            # 先清空Tree内容
+            x = self.Tree.get_children()
+            for item in x:
+                self.Tree.delete(item)
+
             for index in range(len(current_list)):
                 self.Tree.insert("", index, values=(current_list[index][0], current_list[index][1],
                                                     current_list[index][2], current_list[index][3],
                                                     current_list[index][4],
                                                     current_list[index][5], current_list[index][6]))
 
+    def changepassword(self):
+        changepwd_window = changepasswordgui.ChangePasswordWindow(self.current_login_list)
+
     def load_detail_window(self):
-        detail_window = detailgui.DetailWindow(self.action_flag)
+        detail_window = detailgui.DetailWindow(self.action_flag, self.current_student_list, self.all_student_list)
+        self.wait_window(detail_window)
+        return detail_window.userinfo
 
     def add_student(self):
         self.action_flag = 2
-        self.load_detail_window()
+        if self.load_detail_window() == 1:
+            self.load_all_student()
+        else:
+            return
 
     def update_student(self):
         self.action_flag = 3
-        self.load_detail_window()
+        item = self.Tree.selection()[0]
+        Temp_student_list = self.Tree.item(item, "values")
+        # 遍历获得完整学生明细信息
+        for item in self.all_student_list:
+            if item[0] == Temp_student_list[0]:
+                self.current_student_list = item
+        # 载入窗体
+        if self.load_detail_window() == 1:
+            self.load_all_student()
+        else:
+            return
+
+    def delete_student(self):
+        self.action_flag = 4
+        #  使用selection方法获取TreeView中的选中信息
+        item = self.Tree.selection()[0]
+        Temp_student_list = self.Tree.item(item, "values")
+        # 询问是否删除
+        choose = askyesno("删除确认", "确定要删除该学生【学号:" + Temp_student_list[0] + ",姓名:" +
+                          Temp_student_list[1] + "】的信息吗？")
+        if choose:
+            # 执行删除动作
+            for index in range(len(self.all_student_list)):
+                if self.all_student_list[index][0] == Temp_student_list[0]:
+                    self.all_student_list.pop(index)
+                    showinfo("系统消息", "删除成功！")
+                    # 更新表格
+                    self.load_all_student()
+                    break
+        else:
+            return
 
     def view_student(self, event):
         self.action_flag = 1
+        # 获取Tree表格双击某一行的数据,selection()如果没有指定参数，则表明以列表形式返回所有的item
+        item = self.Tree.selection()[0]  # 获取双击某一行的项目标识符
+        # 这个Tree表格中的数据，只是显示了部分数据,为了显示明细窗体，我们需要加载文件中的读取出来的完整信息
+        Temp_student_list = self.Tree.item(item, "values")  # 通过item方法，获取该列的所有元素，以元组的形式返回
+        # 遍历获得完整学生明细信息
+        for item in self.all_student_list:
+            if item[0] == Temp_student_list[0]:
+                self.current_student_list = item
+
         self.load_detail_window()
 
 

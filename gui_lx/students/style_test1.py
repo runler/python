@@ -1,17 +1,24 @@
-from tkinter import *
-from tkinter.ttk import *
+import tkinter
+from tkinter import ttk  # 导入内部包
 
-root = Tk()
-root.title("style属性")
-root.geometry("300x200")
-# 实例化一个style对象style01
-style01 = Style()
-# 对style01进行配置,Stylename属性设置为password.TLable
-style01.configure("password.TLabel", font=("华文黑体", 18), background="green", foreground="blue")
-# 把Label01控件绑定给style01对象
-Label01 = Label(root, text="用户名", style="password.TLabel")
-Label01.pack(padx=10, pady=10)
-Label02 = Label(root, text="密码")
-Label02.pack(padx=10, pady=10)
-# 展示窗体
+li = ['王记','12','男']
+root = tkinter.Tk()
+root.title('测试')
+tree = ttk.Treeview(root,columns=['1','2','3'],show='headings')
+tree.column('1',width=100,anchor='center')
+tree.column('2',width=100,anchor='center')
+tree.column('3',width=100,anchor='center')
+tree.heading('1',text='姓名')
+tree.heading('2',text='学号')
+tree.heading('3',text='性别')
+tree.insert('','end',values=li)
+tree.grid()
+
+def delButton(tree):
+    x=tree.get_children()
+    for item in x:
+        tree.delete(item)
+
+# delButton(tree)
+
 root.mainloop()

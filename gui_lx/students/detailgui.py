@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter.messagebox import showinfo
 from tkinter.ttk import *
 import os
 
@@ -9,13 +10,15 @@ import os
 
 
 class DetailWindow(Toplevel):  # 已经Tk实例化了一个主窗体,第二个窗体必须要以子窗体的形式打开 Toplevel
-    def __init__(self, action_flag):
+    def __init__(self, action_flag, current_student, all_student_list):
         super().__init__()
         self.title("学生明细信息")
         self.geometry("700x550+600+150")
         self.resizable(0, 0)  # 不能改变大小
         # action_flag = 1
         self.flag = action_flag
+        self.current_student_list = current_student
+        self.all_student_list = all_student_list
         # 加载控件
         self.setup_UI()
         self.load_windows_flag()
@@ -114,16 +117,122 @@ class DetailWindow(Toplevel):  # 已经Tk实例化了一个主窗体,第二个�
         self.Entry_emtel = Entry(self.Pane_detail, textvariable=self.var_emtel, font=("微软雅黑", 16, "bold"), width=16)
         self.Entry_emtel.place(x=460, y=258)
         # 放置两个按钮
-        self.Button_save = Button(self, text="保存", style="TButton").place(x=350, y=472)
-        self.Button_exit = Button(self, text="关闭", style="TButton").place(x=502, y=472)
+        self.Button_save = Button(self, text="保存", style="TButton", command=self.commit).place(x=350, y=472)
+        self.Button_exit = Button(self, text="关闭", style="TButton", command=self.colse_window).place(x=502, y=472)
+
+    def load_student_detail(self):
+        if self.flag != 2 and len(self.current_student_list) == 0:
+            showinfo("系统消息", "没有任何数据需要展示!")
+        else:
+            if self.flag == 2:
+                self.current_student_list = ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '','' ]
+            self.var_sno.set(self.current_student_list[0])  # 学号
+            self.var_name.set(self.current_student_list[1])  # 姓名
+            if "男" in self.current_student_list[2]:  # 性别
+                self.var_gender.set(1)
+            else:
+                self.var_gender.set(2)
+            self.var_age.set(self.current_student_list[3])  # 生日
+            self.var_mobile.set(self.current_student_list[4])  # 电话号码
+            self.var_email.set(self.current_student_list[5])  # 邮箱
+            self.var_address.set(self.current_student_list[6])  # 地址
+            self.var_id.set(self.current_student_list[7])  # 身份证号
+            self.var_studyin.set(self.current_student_list[8])  # 入学时间
+            self.var_pro.set(self.current_student_list[9])  # 专业
+            self.var_emcon.set(self.current_student_list[10])  # 紧急联系人
+            self.var_emtel.set(self.current_student_list[11])  # 紧急联系号码
 
     def load_windows_flag(self):
         if self.flag == 1:
             self.Label_title.configure(text="==查看学生明细==")
+            # self.Button_save.place_forget()  # 报错！！！
+            self.Entry_sno["state"] = DISABLED
+            self.Entry_name["state"] = DISABLED
+            self.Radio_man["state"] = DISABLED
+            self.Radio_woman["state"] = DISABLED
+            self.Entry_age["state"] = DISABLED
+            self.Entry_id["state"] = DISABLED
+            self.Entry_mobile["state"] = DISABLED
+            self.Entry_email["state"] = DISABLED
+            self.Entry_home["state"] = DISABLED
+            self.Entry_studyin["state"] = DISABLED
+            self.Entry_pro["state"] = DISABLED
+            self.Entry_emcon["state"] = DISABLED
+            self.Entry_emtel["state"] = DISABLED
         elif self.flag == 2:
             self.Label_title.configure(text="==新建学生明细==")
         elif self.flag == 3:
             self.Label_title.configure(text="==修改学生明细==")
+            # 填充数据
+            self.load_student_detail()
+            # 学号不允许修改
+            self.Entry_sno["state"] = DISABLED
+
+        self.load_student_detail()
+
+    def colse_window(self):
+        self.userinfo = 0
+        # 关闭窗口
+        self.destroy()
+
+    def commit(self):
+        self.userinfo = 1
+        if self.flag == 3:  # 修改
+            # 把当前界面中的数据存储在集合中
+            temp_list = []
+            if len(str(self.Entry_sno.get()).strip()) == 0:
+                showinfo("系统消息", "学号不能为空！")
+                return
+            else:
+                temp_list.append(str(self.Entry_sno.get()).strip())
+                temp_list.append(str(self.Entry_name.get()).strip())
+                if self.var_gender.get() == 1:
+                    temp_list.append("男")
+                else:
+                    temp_list.append("女")
+                temp_list.append(str(self.Entry_age.get()).strip())
+                temp_list.append(str(self.Entry_mobile.get()).strip())
+                temp_list.append(str(self.Entry_email.get()).strip())
+                temp_list.append(str(self.Entry_home.get()).strip())
+                temp_list.append(str(self.Entry_id.get()).strip())
+                temp_list.append(str(self.Entry_studyin.get()).strip())
+                temp_list.append(str(self.Entry_pro.get()).strip())
+                temp_list.append(str(self.Entry_emcon.get()).strip())
+                temp_list.append(str(self.Entry_emtel.get()).strip())
+                # 遍历集合
+                for index in range(len(self.all_student_list)):
+                    if self.all_student_list[index][0] == self.current_student_list[0]:
+                        self.all_student_list[index] = temp_list
+                        # 提醒修改成功
+                        showinfo("系统消息", "学生信息修改成功")
+        elif self.flag == 2:  # 添加
+            # 准备数据
+            temp_list = []
+            if len(str(self.Entry_sno.get()).strip()) == 0:
+                showinfo("系统消息", "学号不能为空！")
+            else:
+                temp_list.append(str(self.Entry_sno.get()).strip())
+                temp_list.append(str(self.Entry_name.get()).strip())
+                if self.var_gender.get() == 1:
+                    temp_list.append("男")
+                else:
+                    temp_list.append("女")
+                temp_list.append(str(self.Entry_age.get()).strip())
+                temp_list.append(str(self.Entry_mobile.get()).strip())
+                temp_list.append(str(self.Entry_email.get()).strip())
+                temp_list.append(str(self.Entry_home.get()).strip())
+                temp_list.append(str(self.Entry_id.get()).strip())
+                temp_list.append(str(self.Entry_studyin.get()).strip())
+                temp_list.append(str(self.Entry_pro.get()).strip())
+                temp_list.append(str(self.Entry_emcon.get()).strip())
+                temp_list.append(str(self.Entry_emtel.get()).strip())
+                # 添加到all_student_list
+                self.all_student_list.append(temp_list)
+                # 提醒添加成功
+                showinfo("系统消息", "学生信息添加成功")
+
+        # 关闭窗体
+        self.destroy()
 
 
 if __name__ == '__main__':
